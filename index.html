@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>© love. 薛鹏同学 &amp; 木兰同学</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<div id="box1" class="box blurred-bg tinted">
+  <div class="content">
+    <h1>我们结婚了</h1>
+    <p id="elapseClock"></p>
+    <p class="related">© love. 薛鹏同学 &amp; 木兰同学</p>
+  </div>
+</div>
+<script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js'></script>
+<script type="text/javascript">
+  var together = new Date();
+  var strs = "2021-03-18 00:00:00";
+  var nowTime = new Date();
+  var together = new Date(strs.replace(/-/g, "/"));
+  timeElapse(together);
+  setInterval(function () { timeElapse(together); }, 500);
+  function timeElapse (c) {
+    var e = Date();
+    var f = (Date.parse(e) - Date.parse(c)) / 1000;
+    var g = Math.floor(f / (3600 * 24)); f = f % (3600 * 24);
+    var b = Math.floor(f / 3600);
+    if (b < 10) { b = "0" + b } f = f % 3600; var d = Math.floor(f / 60);
+    if (d < 10) { d = "0" + d } f = f % 60;
+    if (f < 10) { f = "0" + f }
+    var a = '<span class="digit">' + g + '</span> 天 <span class="digit">' + b + '</span> 小时 <span class="digit">' + d + '</span> 分钟 <span class="digit">' + f + "</span> 秒";
+    $("#elapseClock").html(a)
+  };
+</script>
+
+</body>
+</html>
