@@ -5,6 +5,7 @@ body {
   background-attachment: fixed;
   background-position: center center;
   font-family: Raleway, Open Sans, Droid Sans, Roboto,arial, sans-serif;
+  overflow: hidden;
 }
 
 .blurred-bg {
