@@ -55,9 +55,56 @@ h1, h2, h3, a, p {
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
+.man {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .musicplayer {
   position: fixed;
   top: 5%;
   right: 3%;
   z-index: 999999;
+}
+
+.heart {
+  margin: 0 20px;
+  width: 20px;
+  height: 20px;
+  background: red;
+  position: relative;
+  transform: rotate(45deg) scale(0.5);
+  animation: heartbit 0.5s alternate infinite;
+}
+
+.heart::before {
+  content: '';
+  width: 20px;
+  height: 10px;
+  background: red;
+  position: absolute;
+  left: 0;
+  top: -10px;
+  border-radius: 10px 10px 0 0;
+}
+
+.heart::after {
+  content: '';
+  width: 10px;
+  height: 20px;
+  background: red;
+  position: absolute;
+  left: -10px;
+  top: 0;
+  border-radius: 10px 0 0 10px;
+}
+
+@keyframes heartbit {
+  0% {
+    transform: rotate(45deg) scale(0.5);
+  }
+
+  100% {
+    transform: rotate(45deg) scale(1);
+  }
 }
