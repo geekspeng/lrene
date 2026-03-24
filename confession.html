@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给你的心意</title>
+    <style>
+        :root {
+            --bg-deep: #050510;
+            --bg-mid: #0d0d1a;
+            --accent-pink: #ff6b9d;
+            --accent-rose: #ff4757;
+            --accent-coral: #ff7e7e;
+            --accent-gold: #ffd700;
+            --accent-lavender: #e8b4ff;
+            --text-light: #fff8fa;
+            --text-muted: rgba(255, 248, 250, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --font-display: 'ZCOOL XiaoWei', 'Source Han Serif SC', 'Noto Serif SC', 'SimSun', serif;
+            --font-body: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            height: 100vh;
+            background: var(--bg-deep);
+            font-family: var(--font-body);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 银河渐变背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(120, 80, 180, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255, 107, 157, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 50% 50%, rgba(255, 215, 0, 0.05) 0%, transparent 60%),
+                linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-mid) 50%, var(--bg-deep) 100%);
+            z-index: -2;
+        }
+
+        /* 柔焦 vignette 效果 */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(5, 5, 16, 0.4) 100%);
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* 星空背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: white;
+            animation: starTwinkle var(--duration) ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: var(--min-opacity); transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
+        /* 流星 */
+        .meteor {
+            position: absolute;
+            width: 2px;
+            height: 80px;
+            background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, white 100%);
+            border-radius: 50%;
+            transform: rotate(-45deg);
+            opacity: 0;
+            animation: meteor 4s ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes meteor {
+            0%, 90%, 100% { opacity: 0; transform: rotate(-45deg) translateX(0); }
+            92% { opacity: 1; }
+            95% { opacity: 0.5; transform: rotate(-45deg) translateX(200px); }
+        }
+
+        /* 漂浮的装饰光点 */
+        .glow-orb {
+            position: fixed;
+            width: var(--size);
+            height: var(--size);
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--color) 0%, transparent 70%);
+            opacity: 0.4;
+            animation: orbFloat var(--duration) ease-in-out infinite;
+            animation-delay: var(--delay);
+            filter: blur(20px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -40px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        /* 漂浮的心形 */
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .floating-heart {
+            position: absolute;
+            bottom: 0px;
+            animation: heartFloat var(--duration) ease-in infinite;
+            animation-delay: var(--delay);
+            opacity: 0;
+            filter: drop-shadow(0 0 10px var(--heart-color));
+        }
+
+        .floating-heart svg {
+            width: var(--size);
+            height: var(--size);
+        }
+
+        @keyframes heartFloat {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(0.6);
+                opacity: 0;
+            }
+            5% { opacity: var(--max-opacity); }
+            85% { opacity: var(--max-opacity); }
+            100% {
+                transform: translateY(calc(-100vh - 50px)) rotate(var(--rotation)) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* 主内容区 */
+        .main-content {
+            text-align: center;
+            z-index: 10;
+            padding: 1rem;
+            max-width: 700px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .main-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 标题样式 */
+        .main-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 6vw, 4rem);
+            color: var(--text-light);
+            letter-spacing: 0.1em;
+            opacity: 0;
+            animation: titleReveal 2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+            text-shadow:
+                0 0 40px rgba(255, 107, 157, 0.5),
+                0 0 80px rgba(255, 107, 157, 0.3);
+            position: relative;
+            line-height: 1.2;
+            margin: 8vh 0 0;
+            white-space: nowrap;
+        }
+
+        .main-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-pink), transparent);
+            margin: 0.5rem auto 0;
+            opacity: 0;
+            animation: lineAppear 1s ease-out 1.5s forwards;
+        }
+
+        @keyframes lineAppear {
+            to { opacity: 1; width: 150px; }
+        }
+
+        .main-title:hover {
+            transform: scale(1.03);
+        }
+
+        .main-title .char {
+            display: inline-block;
+            white-space: nowrap;
+            animation: charReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: calc(0.5s + var(--index) * 0.08s);
+            opacity: 0;
+            transform: translateY(30px) rotate(var(--rotate, 0deg));
+        }
+
+        @keyframes charReveal {
+            to { opacity: 1; transform: translateY(0) rotate(0deg); }
+        }
+
+        @keyframes titleReveal {
+            0% { opacity: 0; transform: translateY(40px); filter: blur(10px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        /* 按钮样式 */
+        .start-btn {
+            margin-top: 1rem;
+            padding: 0.9rem 2.5rem;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            background: linear-gradient(135deg, var(--accent-pink) 0%, var(--accent-rose) 50%, var(--accent-coral) 100%);
+            color: white;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            opacity: 0;
+            animation: btnReveal 1s ease-out 1.8s forwards;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow:
+                0 10px 40px rgba(255, 107, 157, 0.4),
+                0 0 80px rgba(255, 107, 157, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.1em;
+        }
+
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .start-btn:hover::before {
+            left: 100%;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow:
+                0 20px 60px rgba(255, 107, 157, 0.5),
+                0 0 120px rgba(255, 107, 157, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .start-btn:active {
+            transform: translateY(-2px) scale(1);
+        }
+
+        @keyframes btnReveal {
+            from { opacity: 0; transform: translateY(20px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .start-btn.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            visibility: hidden;
+            height: 0;
+            margin: 0;
+            padding: 0;
+            border: none;
+            transition: all 0.5s ease;
+        }
+
+        /* 信函卡片 */
+        .confession-content {
+            max-width: 580px;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            flex-shrink: 0;
+        }
+
+        .confession-content.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+            max-height: 100vh;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .confession-content.show::-webkit-scrollbar {
+            display: none;
+        }
+
+        .love-letter {
+            background: linear-gradient(
+                135deg,
+                rgba(255, 107, 157, 0.08) 0%,
+                rgba(255, 71, 87, 0.04) 50%,
+                rgba(255, 126, 126, 0.06) 100%
+            );
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 1.8rem 1.5rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 25px 80px rgba(0, 0, 0, 0.4),
+                0 0 1px rgba(255, 107, 157, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        /* 卡片光晕边框 */
+        .love-letter::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 107, 157, 0.3),
+                transparent 30%,
+                transparent 70%,
+                rgba(255, 126, 126, 0.2)
+            );
+            border-radius: 32px;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        /* 内部光泽动画 */
+        .love-letter::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                rgba(255, 215, 0, 0.08) 60deg,
+                transparent 120deg,
+                rgba(255, 107, 157, 0.06) 180deg,
+                transparent 240deg,
+                rgba(232, 180, 255, 0.04) 300deg,
+                transparent 360deg
+            );
+            animation: cardShimmer 15s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes cardShimmer {
+            to { transform: rotate(360deg); }
+        }
+
+        .love-letter h2 {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-coral) 50%, var(--accent-gold) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+            animation: gradientShift 4s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
+
+        .love-letter p {
+            font-weight: 300;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .love-letter p.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .love-letter p + p {
+            margin-top: 0.6rem;
+        }
+
+        .signature {
+            margin-top: 1.2rem;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            background: linear-gradient(135deg, var(--accent-lavender), var(--accent-pink));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            z-index: 1;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        /* 心形装饰 */
+        .heart-decoration {
+            position: absolute;
+            font-size: 120px;
+            opacity: 0.04;
+            z-index: 0;
+            user-select: none;
+            animation: heartBeat 3s ease-in-out infinite;
+        }
+
+        .heart-decoration.left {
+            top: 30px;
+            left: 30px;
+            transform: rotate(-20deg) scale(var(--scale, 1));
+        }
+
+        .heart-decoration.right {
+            bottom: 30px;
+            right: 30px;
+            transform: rotate(20deg) scale(var(--scale, 1));
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: rotate(-20deg) scale(1); }
+            50% { transform: rotate(-20deg) scale(1.05); }
+        }
+
+        /* 回应按钮 */
+        .response-buttons {
+            margin-top: 1.2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .response-btn {
+            padding: 0.7rem 2rem;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .response-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .response-btn.yes {
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-rose));
+            color: white;
+            border: none;
+        }
+
+        .response-btn.yes:hover {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .response-btn.yes:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .response-btn.no {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .response-btn.no:hover {
+            border-color: rgba(255, 107, 157, 0.4);
+            color: var(--accent-pink);
+            transform: translateY(-2px);
+        }
+
+        /* 成功提示 */
+        .success-message {
+            display: none;
+            margin-top: 1.2rem;
+            padding: 1.5rem;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 215, 0, 0.1) 0%,
+                rgba(255, 107, 157, 0.08) 50%,
+                rgba(232, 180, 255, 0.05) 100%
+            );
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 24px;
+            animation: successPulse 2s ease-in-out infinite;
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.1);
+        }
+
+        .success-message.show {
+            display: block;
+            animation: successReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards, successPulse 2s ease-in-out 0.8s infinite;
+        }
+
+        @keyframes successReveal {
+            from { opacity: 0; transform: scale(0.8) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        @keyframes successPulse {
+            0%, 100% { box-shadow: 0 20px 60px rgba(255, 215, 0, 0.1), 0 0 0 0 rgba(255, 215, 0, 0); }
+            50% { box-shadow: 0 20px 60px rgba(255, 215, 0, 0.15), 0 0 30px rgba(255, 215, 0, 0.1); }
+        }
+
+        .success-message h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-pink), var(--accent-lavender));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.8rem;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        .success-message p {
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+        /* 粒子效果 */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: particleRise 1.5s ease-out forwards;
+        }
+
+        @keyframes particleRise {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-150px) scale(0) rotate(180deg);
+            }
+        }
+
+        /* 涟漪点击效果 */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: rippleEffect 0.6s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes rippleEffect {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-deep);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 107, 157, 0.3);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 107, 157, 0.5);
+        }
+
+        /* 选中文字样式 */
+        ::selection {
+            background: rgba(255, 107, 157, 0.3);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- 星空 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 光晕装饰 -->
+    <div class="hearts-container" id="hearts"></div>
+
+    <!-- 主内容 -->
+    <div class="main-content" id="mainContent">
+        <h1 class="main-title" id="mainTitle">
+            <span class="char" style="--index: 0">给</span>
+            <span class="char" style="--index: 1">你</span>
+            <span class="char" style="--index: 2">的</span>
+            <span class="char" style="--index: 3">一</span>
+            <span class="char" style="--index: 4">封</span>
+            <span class="char" style="--index: 5">信</span>
+        </h1>
+
+        <button class="start-btn" id="startBtn" onclick="revealContent()">戳我看看 ✨</button>
+
+        <div class="confession-content" id="confessionContent">
+            <div class="love-letter">
+                <span class="heart-decoration left">♥</span>
+                <span class="heart-decoration right">♥</span>
+                <h2>致我最亲爱的你</h2>
+                <p>
+                    从遇见你的那一刻起，我的世界便有了不一样的光。
+                    你的笑容，是我每天醒来的第一份期待；
+                    你的声音，是我睡前最温柔的枕边语。
+                </p>
+                <p>
+                    我想牵着你的手，走过每一个春夏秋冬；
+                    我想把所有的美好，都与你分享；
+                    我想把余生的时间，都用来爱你。
+                </p>
+                <p>
+                    你愿意...给我一个机会，<br>
+                    让我用一辈子来守护你吗？
+                </p>
+                <p class="signature">—— 永远爱你的人</p>
+            </div>
+
+            <div class="response-buttons" id="responseButtons">
+                <button class="response-btn yes" onclick="respondYes()">我愿意 💕</button>
+                <button class="response-btn no" onclick="respondNo()">点错了...</button>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                <h3>💖 我会用一生来爱你 💖</h3>
+                <p>谢谢你接受我的心意，从今以后，我会一直在你身边。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 创建星空
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const count = 180;
+
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = 0.5 + Math.random() * 2.5;
+                star.style.cssText = `
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    width: ${size}px;
+                    height: ${size}px;
+                    --duration: ${2 + Math.random() * 4}s;
+                    --delay: ${Math.random() * 3}s;
+                    --min-opacity: ${0.2 + Math.random() * 0.3};
+                `;
+                starsContainer.appendChild(star);
+            }
+
+            // 添加流星
+            for (let i = 0; i < 3; i++) {
+                const meteor = document.createElement('div');
+                meteor.className = 'meteor';
+                meteor.style.cssText = `
+                    top: ${10 + Math.random() * 30}%;
+                    left: ${Math.random() * 60}%;
+                    --delay: ${i * 5 + Math.random() * 3}s;
+                `;
+                starsContainer.appendChild(meteor);
+            }
+
+            // 添加光晕装饰球
+            const orbColors = ['rgba(255, 107, 157, 0.5)', 'rgba(255, 215, 0, 0.3)', 'rgba(232, 180, 255, 0.4)'];
+            for (let i = 0; i < 4; i++) {
+                const orb = document.createElement('div');
+                orb.className = 'glow-orb';
+                orb.style.cssText = `
+                    --size: ${80 + Math.random() * 120}px;
+                    --color: ${orbColors[i % 3]};
+                    --duration: ${8 + Math.random() * 6}s;
+                    --delay: ${i * 2}s;
+                    top: ${10 + Math.random() * 60}%;
+                    left: ${10 + Math.random() * 70}%;
+                `;
+                document.body.appendChild(orb);
+            }
+        }
+
+        // 创建漂浮的心 - 更丰富的颜色
+        function createFloatingHearts() {
+            const container = document.getElementById('hearts');
+            const heartColors = ['#ff6b9d', '#ff4757', '#ffd700', '#ff7e7e', '#e8b4ff', '#ff9ff3'];
+
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                const color = heartColors[Math.floor(Math.random() * heartColors.length)];
+                const size = 18 + Math.random() * 22;
+                const duration = 7 + Math.random() * 5;
+
+                heart.style.cssText = `
+                    left: ${Math.random() * 100}%;
+                    --duration: ${duration}s;
+                    --delay: ${Math.random() * 2}s;
+                    --size: ${size}px;
+                    --heart-color: ${color};
+                    --rotation: ${-30 + Math.random() * 60}deg;
+                    --max-opacity: ${0.5 + Math.random() * 0.4};
+                `;
+
+                heart.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+
+                container.appendChild(heart);
+                setTimeout(() => heart.remove(), duration * 1000 + 1000);
+            }, 80);
+        }
+
+        // 揭示内容
+        function revealContent() {
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('confessionContent').classList.add('show');
+
+            // 文字逐段显示动画
+            const paragraphs = document.querySelectorAll('.love-letter p');
+            paragraphs.forEach((p, index) => {
+                setTimeout(() => {
+                    p.classList.add('visible');
+                }, 600 + index * 500);
+            });
+        }
+
+        // 点击是的反应
+        function respondYes() {
+            document.getElementById('responseButtons').style.display = 'none';
+            document.getElementById('successMessage').classList.add('show');
+            createCelebrationParticles();
+        }
+
+        // 点击否的反应
+        function respondNo() {
+            const btn = document.querySelector('.response-btn.no');
+            btn.textContent = '再想想...';
+            btn.style.opacity = '0.5';
+            btn.style.transform = 'scale(0.95)';
+        }
+
+        // 庆祝粒子效果
+        function createCelebrationParticles() {
+            const colors = ['#ff6b9d', '#ffd700', '#ff4757', '#e8b4ff', '#ff9ff3', '#fff'];
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.cssText = `
+                        left: ${30 + Math.random() * 40}vw;
+                        top: ${40 + Math.random() * 30}vh;
+                        width: ${4 + Math.random() * 12}px;
+                        height: ${4 + Math.random() * 12}px;
+                        background: ${colors[Math.floor(Math.random() * colors.length)]};
+                        animation-duration: ${0.8 + Math.random() * 1.2}s;
+                        box-shadow: 0 0 ${6 + Math.random() * 10}px currentColor;
+                    `;
+                    document.body.appendChild(particle);
+                    setTimeout(() => particle.remove(), 2000);
+                }, i * 25);
+            }
+        }
+
+        // 添加涟漪点击效果
+        document.querySelectorAll('.response-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const rect = this.getBoundingClientRect();
+                ripple.style.left = (e.clientX - rect.left) + 'px';
+                ripple.style.top = (e.clientY - rect.top) + 'px';
+                ripple.style.width = ripple.style.height = '20px';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // 初始化
+        createStars();
+        createFloatingHearts();
+    </script>
+</body>
+</html>

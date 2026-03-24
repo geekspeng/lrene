@@ -109,3 +109,24 @@ h1, h2, h3, a, p {
     transform: rotate(45deg) scale(1);
   }
 }
+
+.confession-link {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 8px 20px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85) !important;
+  text-decoration: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.confession-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
